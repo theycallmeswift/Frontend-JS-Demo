@@ -1,0 +1,20 @@
+{
+  "author": "Mike Swift <theycallmeswift@gmail.com>",
+  "name": "frontend_js_demo",
+  "description": "A simple demo of the power of backbone with a node app.",
+  "version": "0.0.0",
+  "repository": {
+    "url": ""
+  },
+  "engines": {
+    "node": "~0.6.9"
+  },
+  "dependencies": {
+    "coffee-script": "1.2.0",
+    "ejs": "0.6.1",
+    "express": "2.5.6",
+    "mongoose": "2.5.2"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {}
+}
