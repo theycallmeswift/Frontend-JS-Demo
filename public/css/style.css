@@ -82,6 +82,34 @@ a:hover { text-decoration: underline; color: #aaa; }
   padding-bottom: 5.1em; 
   background: inherit;
   overflow: hidden;
+  width: 80%;
+  float: left;
+}
+
+#sidebar {
+  width: 20%;
+  background-color: #E0E0E0;
+  border-left: 1px solid #BFBFBF;
+  position: fixed;
+  top:0;
+  right: 0;
+  height: 100%;
+  overflow-y: scroll;
+}
+
+#sidebar .user {
+  display: block;
+  border-top: 1px solid #EFEFEF;
+  border-bottom: 1px solid #CCC;
+  color: #343434;
+  line-height: 40px;
+}
+
+#sidebar .user .gravatar {
+  width: 30px;
+  border: 1px solid #EFEFEF;
+  margin: 5px;
+  float: left;
 }
 
 /* not very important info */
