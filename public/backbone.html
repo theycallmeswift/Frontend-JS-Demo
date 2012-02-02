@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Backbone Demo - A Collection of Frontend JS Demos by Swift</title>
+    <title>A Collection of Frontend JS Demos by Swift</title>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.2.2/underscore-min.js"></script>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js"></script>
@@ -11,32 +11,64 @@
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <link href="/css/bootstrap.css" rel="stylesheet">
-    <link href="/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
 
   </head>
   <body>
-    <!-- Start Header !-->
-    <div class="navbar">
-      <div class="navbar-inner">
-        <div class="container-fluid">
-          <a class="brand" href="/">FrontendJS Demos</a>
-          <div class="nav-collapse">
-            <ul class="nav">
-              <li class="active"><a href='/backbone.html'>Backbone</a></li>
-              <li><a href='/knockout.html'>Knockout</a></li>
-            </ul>
-          </div>
+    <div id="app">
+      <div id="log">
+        <table class="message">
+          <tr>
+            <td class="date">20:20</td>
+            <td class="nick">
+              <img class="gravatar" src="https://secure.gravatar.com/avatar/10831877bd394c902f1dda20524c86d6?s=140&d=retro" />
+              theycallmeswift:
+            </td>
+            <td class="msg-text">@Sw1tch, @Aba_Sababa: What you know about bein' a gangster?</td>
+          </tr>
+        </table>
+        <table class="message">
+          <tr>
+            <td class="date">20:23</td>
+            <td class="nick">
+              <img class="gravatar" src="http://www.gravatar.com/avatar/ed48583f593bd0bf96393d73f40ce6cf?s=60&d=retro" />
+              Sw1tch:
+            </td>
+            <td class="msg-text">Lorem ipsum dolem, blah, blah, blah, blah</td>
+          </tr>
+        </table>
+        <table class="message">
+          <tr>
+            <td class="date">20:24</td>
+            <td class="nick">
+              <img class="gravatar" src="http://www.gravatar.com/avatar/6601d82cf1b6776afd9c31f3d18294c3?s=60&d=retro" />
+              Aba_Sababa:
+            </td>
+            <td class="msg-text">Saaaayyyy what???</td>
+          </tr>
+        </table>
+      </div>
+      <div id="sidebar">
+        <div class="user">
+          <img class="gravatar" src="https://secure.gravatar.com/avatar/10831877bd394c902f1dda20524c86d6?s=140&d=retro" />
+          TheyCallMeSwift
+        </div>
+        <div class="user">
+          <img class="gravatar" src="http://www.gravatar.com/avatar/ed48583f593bd0bf96393d73f40ce6cf?s=60&d=retro" />
+          Sw1tch
+        </div>
+        <div class="user">
+          <img class="gravatar" src="http://www.gravatar.com/avatar/6601d82cf1b6776afd9c31f3d18294c3?s=60&d=retro" />
+          Aba_Sababa
         </div>
       </div>
-    </div>
-    <!-- End Header !-->
-    <!-- Start Container !-->
-    <div class="container-fluid">
-      <div class="row-fluid">
-        <h1>Hello World!</h1>
+      <div id="toolbar">
+        <form id="signup" method="get">
+          <label for="nickname">Nickname:</label><input type="text" id="nickname"/>
+          <label for="email">Email:</label><input type="text" id="email"/>
+          <input id="connectButton" class="button" type="submit" name="" value="Join"/> 
+        </form>
+        <input tabindex="1" type="text" id="entry"/>
       </div>
-    </div>
-    <!-- End Container !-->
   </body>
 </html>
