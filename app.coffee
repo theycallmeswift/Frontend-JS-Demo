@@ -49,6 +49,7 @@ app.configure () ->
 
 ## Persistance Layer ##
 users = []
+messages = []
 
 ## Helpers ##
 validEmail = (email) ->
@@ -59,6 +60,35 @@ validEmail = (email) ->
 
 # API
 app.namespace '/api/v1', () ->
+
+  # Messages
+  app.namespace '/messages', () ->
+
+    # Index
+    app.get '/', (req, res) ->
+      res.json(messages)
+
+    # Create
+    app.post '/', (req, res, next) ->
+      if !req.body.userId and !users[req.body.userId]
+        return next({ statusCode: 400, message: "Invalid user id." })
+
+      unless req.body.message
+        return next({ statusCode: 400, message: "Invalid message body." })
+
+      message = req.body
+
+      # Set the time
+      date = new Date()
+      message.time = "" + date.getHours() + ":" + date.getMinutes();
+
+      # Set the id
+      message.id = messages.length
+
+      messages.push(message)
+
+      res.statusCode = 201
+      res.json(message)
 
   # Users
   app.namespace '/users', () ->
