@@ -7,6 +7,10 @@ $(document).ready(function() {
    * The User Model
    */
   var User = Backbone.Model.extend({
+    defaults: {
+      'loggedIn': true
+    },
+
     gravatar: function() {
       // MD5 (Message-Digest Algorithm) by WebToolkit
       // http://www.webtoolkit.info/javascript-md5.html
@@ -46,6 +50,12 @@ $(document).ready(function() {
     initialize: function() {
       // Rebind to the current context of this
       _.bindAll(this, 'render');
+
+      this.model.bind('change:loggedIn', function(model, value) {
+        if (value === false) {
+          this.remove();
+        }
+      }, this);
     },
 
     render: function() {
@@ -77,13 +87,13 @@ $(document).ready(function() {
        // Bind our interesting events to functions
        self.collection.bind('reset', self.render);
        self.collection.bind('add', self.addUser);
-
-       // Fetch the list of logged in users
-       self.collection.fetch();
      },
 
      render: function() {
        var self = this;
+
+       // Empty the current list
+       self.el.empty();
 
        _(self.collection.loggedInUsers()).each(function(user) {
          self.addUser(user);
@@ -128,6 +138,15 @@ $(document).ready(function() {
       // References to the other views
       self.Sidebar = new SidebarView({ collection: self.users });
 
+      // An attempt to log users out. Probably won't work 60% of the time every time.
+      $(window).bind('beforeunload', function() {
+        if (self.currentUser) {
+          self.currentUser.set({ loggedIn: false });
+          self.currentUser.save();
+          alert("You have been logged out. Peace.");
+        }
+      });
+
       // Render the app
       self.render();
     },
@@ -141,12 +160,31 @@ $(document).ready(function() {
       var self = this;
 
       event.preventDefault();
-      console.log("Authenticating.");
-      self.currentUser = self.users.create({ email: 'TheyCallMeSwift@gmail.com', nickname: 'theycallmeswift' });
+
+      var email = $('#email').val();
+      var nickname = $('#nickname').val();
+
+      self.currentUser = self.users.create({ email: email, nickname: nickname});
+
+      // Remove the login form
+      $('#signup', self.el).remove();
+
+      // Show the chat box and focus on it.
+      var entry = $('#entry', self.el);
+      entry.show();
+      entry.focus();
     },
 
     render: function() {
+      var self = this;
 
+      // Fetch the list of logged in users
+      self.users.fetch();
+
+      // Poll every so often for new stuff
+      setInterval(function() {
+        self.users.fetch();
+      }, 10000);
     }
   });
 

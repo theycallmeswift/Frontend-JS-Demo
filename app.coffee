@@ -9,6 +9,7 @@ util = require 'util'
 # External
 express = require 'express'
 require 'express-namespace'
+_ = require 'underscore'
 
 # Initailize the Server
 app = module.exports = express.createServer()
@@ -46,6 +47,14 @@ app.configure () ->
       res.statusCode = e.statusCode || 500
       return res.json({ error: e.message })
 
+## Persistance Layer ##
+users = []
+
+## Helpers ##
+validEmail = (email) ->
+  re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  return re.test(email)
+
 ## Routing ##
 
 # API
@@ -53,13 +62,43 @@ app.namespace '/api/v1', () ->
 
   # Users
   app.namespace '/users', () ->
-    app.get '/', (req, res) ->
-      res.json([
-        { email: "theycallmeswift@gmail.com", nickname: "TheyCallMeSwift", loggedIn: true },
-        { email: "ian@meetjennings.com", nickname: "Sw1tch", loggedIn: true },
-        { email: "abestanway@gmail.com", nickname: "Aba_Sababa", loggedIn: false}
-      ])
 
+    # Index
+    app.get '/', (req, res) ->
+      res.json(users)
+
+    # Create
+    app.post '/', (req, res, next) ->
+      unless req.body.email and validEmail(req.body.email)
+        return next({ statusCode: 400, message: "Invalid email address." })
+
+      unless req.body.nickname
+        return next({ statusCode: 400, message: "Invalid nickname." })
+
+      user = _.find users, (user) -> user.email.toLowerCase() == req.body.email.toLowerCase()
+
+      unless user
+        user = req.body
+        user.id = users.length
+        users.push(user)
+
+      user.nickname = req.body.nickname
+      user.loggedIn = true
+
+      res.statusCode = 201
+      res.json(user)
+
+    # Edit
+    app.put '/:id', (req, res, next) ->
+      console.log "updating user"
+      user = users[req.params.id]
+      return next({ statusCode: 404, message: "Not found." }) unless user
+
+      user.email = req.body.email if req.body.email
+      user.nickname = req.body.nickname if req.body.nickname
+      user.loggedIn = req.body.loggedIn || false
+
+      res.json(user)
 
 ## Errors ##
 app.all('/404', (req, res, next) ->
