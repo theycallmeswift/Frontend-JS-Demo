@@ -2,39 +2,24 @@
 
 # Native
 {EventEmitter} = require 'events'
-fs = require 'fs'
 path = require 'path'
 qs = require 'querystring'
 util = require 'util'
 
 # External
-ejs = require 'ejs'
 express = require 'express'
-
-# Internal
-env = require('./config/env')
-
-## Initialization ##
+require 'express-namespace'
 
 # Initailize the Server
 app = module.exports = express.createServer()
 
-# Paths
-app.paths = {
-  controllers: path.join(__dirname, "controllers"),
-  lib: path.join(__dirname, "lib"),
-  models: path.join(__dirname, "models"),
-  public: path.join(__dirname, "public"),
-  views: path.join(__dirname, "views")
-}
-
 # Event emitter for the app
 app.events = new EventEmitter()
 
-# Database & Models
-app.db = require(app.paths.models)(env.mongo_url)
-
 ## Configuration ##
+app.paths = {
+  public: path.join(__dirname, "public"),
+}
 
 # Development
 app.configure 'development', () ->
@@ -56,35 +41,43 @@ app.configure () ->
   app.use (e, req, res, next) ->
     if typeof e == "number"
       res.statusCode = e
-      return res.render("errors/#{e}", { layout: 'error' })
+      return res.json({ error: "Internal server error." })
+    else if typeof e == "object"
+      res.statusCode = e.statusCode || 500
+      return res.json({ error: e.message })
 
-    e = Error(e) if typeof e == "string"
-    util.debug(e.stack)
+## Routing ##
 
-    res.statusCode = 500
-    res.render("errors/500", { layout: 'error', error: e })
+# API
+app.namespace '/api/v1', () ->
 
-  # Views
-  app.register('.html', ejs)
-  app.set('views', app.paths.views)
-  app.set('view engine', 'html')
+  # Users
+  app.namespace '/users', () ->
+    app.get '/', (req, res) ->
+      res.json([
+        { email: "theycallmeswift@gmail.com", nickname: "TheyCallMeSwift", loggedIn: true },
+        { email: "ian@meetjennings.com", nickname: "Sw1tch", loggedIn: true },
+        { email: "abestanway@gmail.com", nickname: "Aba_Sababa", loggedIn: false}
+      ])
 
-## Error Views
+
+## Errors ##
 app.all('/404', (req, res, next) ->
-  next(404)
+  next({statusCode: 404, message: "Object not found."})
 )
 
 app.all('/500', (req, res, next) ->
-  next(500)
+  next({statusCode: 500, message: "Internal server error."})
 )
 
 app.all('*', (req, res, next) ->
-  next(404)
+  next({statusCode: 404, message: "Object not found."})
 )
 
-## Start the Server
-app.listen(env.port)
+## Start the Server ##
+port = process.env.port || 3000
+app.listen(port)
 
 app.on('listening', () ->
-  util.log("listening on 0.0.0.0:#{env.port}")
+  util.log("listening on 0.0.0.0:#{port}")
 )

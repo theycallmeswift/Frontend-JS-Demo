@@ -21,8 +21,20 @@ $(document).ready(function() {
    * The User Collection
    */
   var UserCollection = Backbone.Collection.extend({
+    // Tell the collection what model to use.
     model: User,
-    url: '/api/v1/users'
+
+    // Tell the collection where to access the model
+    url: '/api/v1/users',
+
+    // Filter out logged out users
+    loggedInUsers: function() {
+      var self = this;
+
+      return self.filter(function(user) {
+        return user.get('loggedIn');
+      });
+    }
   });
 
   /**
@@ -57,19 +69,23 @@ $(document).ready(function() {
      el: $('#sidebar'),
 
      initialize: function() {
+       var self = this;
+
        // Rebind to the current context of this
-       _.bindAll(this, 'render', 'addUser');
+       _.bindAll(self, 'render', 'addUser');
 
-       this.collection.bind('add', this.addUser);
+       // Bind our interesting events to functions
+       self.collection.bind('reset', self.render);
+       self.collection.bind('add', self.addUser);
 
-       // Render the sidebar
-       this.render();
+       // Fetch the list of logged in users
+       self.collection.fetch();
      },
 
      render: function() {
        var self = this;
 
-       _(self.collection.models).each(function(user) {
+       _(self.collection.loggedInUsers()).each(function(user) {
          self.addUser(user);
        });
 
@@ -108,13 +124,6 @@ $(document).ready(function() {
 
       // References to the collections
       self.users = new UserCollection();
-
-      // Temp
-      self.users.add([
-        { email: "theycallmeswift@gmail.com", nickname: "TheyCallMeSwift" },
-        { email: "ian@meetjennings.com", nickname: "Sw1tch" },
-        { email: "abestanway@gmail.com", nickname: "Aba_Sababa" }
-      ]);
 
       // References to the other views
       self.Sidebar = new SidebarView({ collection: self.users });
