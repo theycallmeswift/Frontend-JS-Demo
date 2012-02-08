@@ -1,6 +1,4 @@
 // This will eventually hold the authenticated user model.
-var currentUser;
-
 $(document).ready(function() {
 
   /**
@@ -21,6 +19,9 @@ $(document).ready(function() {
     }
   });
 
+
+  var Message = Backbone.Model.extend({ });
+
   /**
    * The User Collection
    */
@@ -39,6 +40,11 @@ $(document).ready(function() {
         return user.get('loggedIn');
       });
     }
+  });
+
+  var MessageCollection = Backbone.Collection.extend({
+    model: Message,
+    url: '/api/v1/messages'
   });
 
   /**
@@ -67,6 +73,69 @@ $(document).ready(function() {
       // Build out the gravatar image and append it followed by the username
       $(self.el).append(gravatar.make('img', { 'class': 'gravatar', 'src': self.model.gravatar() }))
       $(self.el).append(self.model.get('nickname'));
+
+      return self;
+    }
+  });
+
+  var ChatView = Backbone.View.extend({
+    el: $('#log'),
+
+    events: {
+      "submit #entry": "parseMessage"
+    },
+
+    initialize: function() {
+      var self = this;
+      _.bindAll(this, 'render', 'addMessage');
+
+
+      this.collection.bind('reset', self.render);
+      this.collection.bind('add', self.addMessage);
+
+      this.collection.fetch();
+    },
+
+    render: function() {
+      var self = this;
+
+      this.el.empty();
+
+      _(self.collection).each(function(message) {
+        self.el.append(message);
+      });
+    },
+
+    parseMessage: function(event) {
+      event.preventDefault();
+      console.log("Parsing message");
+      var message = $('#entry').val();
+      this.addMessage({ nickname: App.currentUser.get('nickname'), message: message });
+    },
+
+    addMessage: function(message) {
+      console.log("Adding message", message);
+      var messageView = new MessageView({ model: message });
+
+      // Append it to the sidebar
+      this.el.append(messageView.render().el)
+    }
+  });
+
+
+  var MessageView = Backbone.View.extend({
+    className: "message",
+
+    initialize: function() {
+      // Rebind to the current context of this
+      _.bindAll(this, 'render');
+    },
+
+    render: function() {
+      var self = this;
+
+      // Build out the gravatar image and append it followed by the username
+      $(self.el).append(self.model.get('nickname') + ": " + self.model.get('message'));
 
       return self;
     }
@@ -134,9 +203,11 @@ $(document).ready(function() {
 
       // References to the collections
       self.users = new UserCollection();
+      self.messages = new MessageCollection();
 
       // References to the other views
       self.Sidebar = new SidebarView({ collection: self.users });
+      self.chat = new ChatView({ collection: self.messages });
 
       // An attempt to log users out. Probably won't work 60% of the time every time.
       $(window).bind('beforeunload', function() {
@@ -180,10 +251,12 @@ $(document).ready(function() {
 
       // Fetch the list of logged in users
       self.users.fetch();
+      self.messages.fetch();
 
       // Poll every so often for new stuff
       setInterval(function() {
         self.users.fetch();
+        self.messages.fetch();
       }, 10000);
     }
   });
